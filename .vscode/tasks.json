@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "backend",
+        "type": "shell",
+        "command": "cargo run",
+        "options": {
+          "cwd": "${workspaceFolder}/backend"
+        },
+        "problemMatcher": [
+          "$armcc5"
+        ]
+      },
+      {
+        "label": "backend-fmt",
+        "type": "shell",
+        "command": "cargo fmt",
+        "options": {
+          "cwd": "${workspaceFolder}/backend"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend-dev",
+        "type": "shell",
+        "command": "dx serve --platform web",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        },
+        "problemMatcher": []
+      },
+	  {
+        "label": "frontend-build",
+        "type": "shell",
+        "command": "dx build --platform web",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend-fmt",
+        "type": "shell",
+        "command": "cargo fmt",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "format-all",
+        "dependsOn": [
+          "backend-fmt",
+          "frontend-fmt"
+        ],
+        "dependsOrder": "parallel",
+        "problemMatcher": []
+      },
+      {
+        "label": "run-all",
+        "dependsOn": [
+          "backend",
+          "frontend-dev"
+        ],
+        "dependsOrder": "parallel",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
