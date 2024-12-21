@@ -1,3 +1,5 @@
+use wasm_bindgen::JsValue;
+
 #[derive(Debug)]
 pub struct CustomError(String);
 
@@ -17,11 +19,26 @@ impl CustomErrorInto for &str {
     }
 }
 
-impl<E: std::error::Error> From<E> for CustomError {
-    fn from(error: E) -> Self {
+impl From<std::io::Error> for CustomError {
+    fn from(error: std::io::Error) -> Self {
+        CustomError(error.to_string())
+    }
+}
+
+impl From<JsValue> for CustomError {
+    fn from(error: JsValue) -> Self {
+        CustomError(
+            error
+                .as_string()
+                .unwrap_or_else(|| String::from("Unknown JS error")),
+        )
+    }
+}
+
+impl From<&str> for CustomError {
+    fn from(error: &str) -> Self {
         CustomError(error.to_string())
     }
 }
 
 pub type CustomResult<T> = Result<T, CustomError>;
-

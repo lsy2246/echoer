@@ -1,7 +1,7 @@
 use dioxus::{logger::tracing, prelude::*};
-use web_sys::{window, MediaQueryList, Storage};
 mod common;
-use common::error::{CustomErrorInto, CustomResult};
+use common::dom::{get_local_storage_value, get_media_theme, set_element_class};
+use components::theme_toggle::IsDark;
 
 use components::Navbar;
 use views::Home;
@@ -20,41 +20,7 @@ enum Route {
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const GLOBAL_CSS: Asset = asset!("/assets/styling/global.css");
-const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IsDark(bool);
-
-fn get_storage() -> CustomResult<Storage> {
-    window()
-        .ok_or("浏览器window对象不存在".into_custom_error())?
-        .local_storage()
-        .map_err(|_| "无法访问localStorage API".into_custom_error())?
-        .ok_or("浏览器不支持localStorage".into_custom_error())
-}
-
-pub fn get_local_storage_value(key: &str) -> CustomResult<String> {
-    get_storage()?
-        .get_item(key)
-        .map_err(|_| "读取localStorage时发生错误".into_custom_error())?
-        .ok_or(format!("localStorage中不存在键'{}'", key).into_custom_error())
-}
-
-pub fn set_local_storage_value(key: &str, value: &str) -> CustomResult<()> {
-    get_storage()?
-        .set_item(key, value)
-        .map_err(|_| format!("无法将值写入localStorage的'{}'键", key).into_custom_error())
-}
-
-pub fn get_media_theme() -> CustomResult<bool> {
-    let media_query = window()
-        .ok_or("浏览器window对象不存在".into_custom_error())?
-        .match_media("(prefers-color-scheme: dark)")
-        .map_err(|_| format!("读取媒体查询时发生错误").into_custom_error())?
-        .ok_or("查询media时发生错误".into_custom_error())?
-        .matches();
-    Ok(media_query)
-}
+const TAILWIND_CSS: Asset = asset!("/assets/styling/tailwind.css");
 
 fn main() {
     dioxus::launch(App);
@@ -62,32 +28,33 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-    use_context_provider(|| Signal::new(IsDark(false)));
+    use_context_provider(|| Signal::new(IsDark("light".to_string())));
     let mut is_dark_context = use_context::<Signal<IsDark>>();
 
-    #[cfg(target_arch = "wasm32")]
-    {
-        let _ = use_memo(move || {
+    use_effect(move || {
+        let theme = {
             let storage_theme = get_local_storage_value("theme");
             match storage_theme {
-                Ok(b) => is_dark_context.set(IsDark(b == "true")),
+                Ok(s) => s,
                 Err(_) => {
                     let device_theme = get_media_theme();
                     match device_theme {
-                        Ok(b) => is_dark_context.set(IsDark(b)),
-                        Err(_) => is_dark_context.set(IsDark(false))
+                        Ok(s) => s,
+                        Err(_) => "light".to_string(),
                     }
                 }
             }
-        });
-    }
+        };
+        is_dark_context.set(IsDark(theme.clone()));
+        let _ = set_element_class("html", &theme);
+    });
 
     rsx! {
-        // Global app resources
-        document::Link { rel: "icon", href: FAVICON }
-        document::Stylesheet{  href: GLOBAL_CSS }
-        document::Stylesheet { href: TAILWIND_CSS }
-
-        Router::<Route> {}
+        div {
+            document::Link { rel: "icon", href: FAVICON }
+            document::Stylesheet{  href: GLOBAL_CSS }
+            document::Stylesheet { href: TAILWIND_CSS }
+            Router::<Route> {}
+        }
     }
 }

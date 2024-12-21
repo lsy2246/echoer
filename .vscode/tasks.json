@@ -24,16 +24,34 @@
       {
         "label": "frontend-dev",
         "type": "shell",
-        "command": "dx serve --platform web",
+        "command": "dx serve",
         "options": {
           "cwd": "${workspaceFolder}/frontend"
         },
         "problemMatcher": []
       },
 	  {
+        "label": "frontend-start",
+        "type": "shell",
+        "command": "serve .",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend/target/dx/frontend/release/web/public"
+        },
+        "problemMatcher": []
+      },
+      {
         "label": "frontend-build",
         "type": "shell",
-        "command": "dx build --platform web",
+        "command": "dx build --release",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend-tailwind-build",
+        "type": "shell",
+        "command": "npx tailwindcss -i ./tailwind.css -o ./assets/styling/tailwind.css",
         "options": {
           "cwd": "${workspaceFolder}/frontend"
         },

@@ -1,8 +1,10 @@
+use crate::common::dom::{set_element_class, set_local_storage_value};
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::BsMoonStars;
 use dioxus_free_icons::icons::bs_icons::BsSun;
 use dioxus_free_icons::Icon;
-use crate::{IsDark,set_local_storage_value};
+#[derive(Debug, Clone, PartialEq)]
+pub struct IsDark(pub String);
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ToggleProps {
@@ -16,24 +18,38 @@ pub struct ToggleProps {
 
 #[component]
 pub fn Toggle(props: ToggleProps) -> Element {
-    let mut dark_context=use_context::<Signal<IsDark>>();
+    let mut dark_context = use_context::<Signal<IsDark>>();
 
     rsx! {
         div {
-            onclick: move |_| 
+            onclick: move |_|
             {
-                dark_context.set(IsDark(!dark_context().0));
-                match set_local_storage_value("theme", if !dark_context().0 { "true" } else { "false" }) {
+                let theme;
+                if dark_context().0=="light" {
+                    theme="dark"
+                }else {
+                    theme="light"
+                };
+
+                dark_context.set(IsDark(theme.to_string()));
+                match set_local_storage_value("theme",theme) {
                     Ok(_)=>{},
                     Err(_)=>{
                         tracing::error!("主题储存失败");
                     },
                 }
+                match set_element_class("html",theme) {
+                    Ok(_)=>{},
+                    Err(e)=>{
+                        tracing::error!("主题类名设置失败:{}",e);
+                    },
+
+                }
             }
              ,
             {
-            match {dark_context().0} {
-                false=>{
+            match {dark_context().0.as_str()} {
+                "dark"=>{
                     rsx!(
                         Icon{
                             width:props.width,
@@ -43,7 +59,7 @@ pub fn Toggle(props: ToggleProps) -> Element {
                         }
                     )
                 },
-                true=>{
+                _=>{
                     rsx!{
                         Icon{
                             width:props.width,
