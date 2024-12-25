@@ -1,10 +1,14 @@
-use crate::common::dom::{set_element_class, set_local_storage_value};
+use crate::common::dom::{
+    add_element_class, get_local_storage_value, get_media_theme, remove_element_class,
+    remove_local_storage_value, set_local_storage_value,
+};
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::BsMoonStars;
 use dioxus_free_icons::icons::bs_icons::BsSun;
 use dioxus_free_icons::Icon;
+
 #[derive(Debug, Clone, PartialEq)]
-pub struct IsDark(pub String);
+pub struct ThemeProvider(pub String);
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ToggleProps {
@@ -18,37 +22,34 @@ pub struct ToggleProps {
 
 #[component]
 pub fn Toggle(props: ToggleProps) -> Element {
-    let mut dark_context = use_context::<Signal<IsDark>>();
+    let mut theme_context = use_context::<Signal<ThemeProvider>>();
 
     rsx! {
         div {
             onclick: move |_|
             {
-                let theme;
-                if dark_context().0=="light" {
-                    theme="dark"
+                let system_theme=get_media_theme().unwrap_or_else(|_|"".to_string());
+                let target_theme;
+
+                if theme_context().0=="light" {
+                    target_theme="dark".to_string()
                 }else {
-                    theme="light"
+                    target_theme="light".to_string()
                 };
 
-                dark_context.set(IsDark(theme.to_string()));
-                match set_local_storage_value("theme",theme) {
-                    Ok(_)=>{},
-                    Err(_)=>{
-                        tracing::error!("主题储存失败");
-                    },
+                let _=remove_element_class("html", &theme_context().0);
+                theme_context.set(ThemeProvider(target_theme.clone()));
+                let _=add_element_class("html", &target_theme);
+                if target_theme==system_theme {
+                    let _=remove_local_storage_value("theme");
+                }else{
+                    let _=set_local_storage_value("theme", &target_theme);
                 }
-                match set_element_class("html",theme) {
-                    Ok(_)=>{},
-                    Err(e)=>{
-                        tracing::error!("主题类名设置失败:{}",e);
-                    },
 
-                }
             }
              ,
             {
-            match {dark_context().0.as_str()} {
+            match {theme_context().0.as_str()} {
                 "dark"=>{
                     rsx!(
                         Icon{
@@ -76,5 +77,19 @@ pub fn Toggle(props: ToggleProps) -> Element {
 
          }
 
+    }
+}
+
+pub fn get_theme() -> String {
+    let storage_theme = get_local_storage_value("theme");
+    match storage_theme {
+        Ok(s) => s,
+        Err(_) => {
+            let device_theme = get_media_theme();
+            match device_theme {
+                Ok(s) => s,
+                Err(_) => "light".to_string(),
+            }
+        }
     }
 }

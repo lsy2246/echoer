@@ -1,5 +1,5 @@
 use super::error::{CustomErrorInto, CustomResult};
-use web_sys::{window, Document, MediaQueryList, Storage, Window};
+use web_sys::{window, Document, Element, Storage, Window};
 
 fn get_window() -> CustomResult<Window> {
     Ok(window().ok_or("浏览器window对象不存在")?)
@@ -8,7 +8,18 @@ fn get_window() -> CustomResult<Window> {
 fn get_storage() -> CustomResult<Storage> {
     get_window()?
         .local_storage()?
-        .ok_or("浏览器不支持localStorage".into_custom_error())
+        .ok_or("获取浏览器Storge对象失败".into_custom_error())
+}
+fn get_document() -> CustomResult<Document> {
+    get_window()?
+        .document()
+        .ok_or("获取浏览器Document对象失败".into_custom_error())
+}
+
+fn get_element(ele_name: &str) -> CustomResult<Element> {
+    get_document()?
+        .query_selector(ele_name)?
+        .ok_or(format!("获取元素{}失败", ele_name).into_custom_error())
 }
 
 pub fn get_local_storage_value(key: &str) -> CustomResult<String> {
@@ -19,6 +30,10 @@ pub fn get_local_storage_value(key: &str) -> CustomResult<String> {
 
 pub fn set_local_storage_value(key: &str, value: &str) -> CustomResult<()> {
     Ok(get_storage()?.set_item(key, value)?)
+}
+
+pub fn remove_local_storage_value(key: &str) -> CustomResult<()> {
+    Ok(get_storage()?.remove_item(key)?)
 }
 
 pub fn get_media_theme() -> CustomResult<String> {
@@ -32,13 +47,10 @@ pub fn get_media_theme() -> CustomResult<String> {
     Ok("light".to_string())
 }
 
-pub fn set_element_class(ele_name: &str, class_name: &str) -> CustomResult<()> {
-    get_window()?
-        .document()
-        .ok_or("浏览器document对象不存在".into_custom_error())?
-        .query_selector(ele_name)?
-        .ok_or(format!("获取元素{}失败", ele_name).into_custom_error())?
-        .set_class_name(class_name);
+pub fn add_element_class(ele_name: &str, class_name: &str) -> CustomResult<()> {
+    Ok(get_element(ele_name)?.class_list().add_1(class_name)?)
+}
 
-    Ok(())
+pub fn remove_element_class(ele_name: &str, class_name: &str) -> CustomResult<()> {
+    Ok(get_element(ele_name)?.class_list().remove_1(class_name)?)
 }

@@ -10,7 +10,10 @@ edition = "2021"
 dioxus = { version = "0.6.0", features = ["router"] }
 dioxus-free-icons = { version = "0.9", features = ["bootstrap"] }
 wasm-bindgen = "0.2.99"
-web-sys = { version = "0.3.76", features = ["Window","Storage","MediaQueryList","Document"] }
+web-sys = { version = "0.3.76", features = ["Window","Storage","MediaQueryList","Document","DomTokenList","Element","MediaQueryListEvent"] }
+js-sys = "0.3.76"
+rand = "0.8.5"
+getrandom = { version = "0.2", features = ["js"] }
 
 [features]
 default = ["dioxus/web"]

@@ -1,11 +1,18 @@
 .light{
   --accent-color:#3F51B5;
-}
-.light .box{
-  background:
+  color:black;
 }
 
 .dark{
   --accent-color:#4d648d;
+  color:white;
+}
+
+html.dark{
+  background-color:black;
+}
+
+html.light{
+  background-color:white;
 }
 

@@ -1,16 +1,21 @@
+use crate::components::Toast;
 use dioxus::prelude::*;
-use crate::components::Message;
 
 #[component]
 pub fn Home() -> Element {
     rsx! {
-        Message{},
         div {
-            class:"bg-yellow-200 dark:bg-sky-500",
+            class:"border-2 border-red-500",
             "hello,world"
             ul {
                 li { "nihao" }
-             }
             }
+            button {
+                onclick: move |_| {
+                    Toast::info("我是标sasadc我想二次TV要不以后牛魔题".to_string(), "我是内容".to_string())
+                },
+                "Show Notification"
+            }
+        }
     }
 }
