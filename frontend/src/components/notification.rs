@@ -1,7 +1,7 @@
 use crate::common::error::{CustomErrorInto, CustomResult};
 use crate::common::helps::generate_random_string;
 use crate::Route;
-use dioxus::prelude::*;
+use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::{BsCheckCircle, BsInfoCircle, BsXCircle, BsXLg};
 use dioxus_free_icons::Icon;
 
@@ -19,14 +19,23 @@ pub enum NotificationType {
 
 #[derive(PartialEq, Props, Clone)]
 pub struct NotificationProps {
-    #[props(default="".to_string())]
+    id: String,
     title: String,
-    #[props(default="".to_string())]
     content: String,
-    #[props(default = 5)]
     time: u64,
-    #[props(default=NotificationType::Info)]
     r#type: NotificationType,
+}
+
+impl Default for NotificationProps {
+    fn default() -> Self {
+        Self {
+            id: "".to_string(),
+            title: "".to_string(),
+            content: "".to_string(),
+            time: 5,
+            r#type: NotificationType::Info,
+        }
+    }
 }
 
 #[derive(PartialEq, Clone)]
@@ -38,7 +47,7 @@ struct NoticationColorMatching {
 fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMatching {
     match notification_type {
         NotificationType::Info => NoticationColorMatching {
-            color: String::from("rgba(0,168,91,0.85)"),
+            color: String::from("rgb(38,131,255)"),
             icon: rsx! {
                 Icon {
                     icon: BsInfoCircle,
@@ -48,7 +57,7 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
             },
         },
         NotificationType::Error => NoticationColorMatching {
-            color: String::from("rgba(225,45,57,0.85)"),
+            color: String::from("rgb(225,45,57)"),
             icon: rsx! {
                 Icon {
                     icon: BsXCircle,
@@ -58,7 +67,7 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
             },
         },
         NotificationType::Success => NoticationColorMatching {
-            color: String::from("rgba(38,131,255,0.85)"),
+            color: String::from("rgb(0,168,91)"),
             icon: rsx! {
                 Icon {
                     icon: BsCheckCircle,
@@ -70,26 +79,39 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
     }
 }
 
+pub fn remove_notification(id: String) {
+    let mut notifications_context = use_context::<Signal<NotificationProvider>>();
+    let new_notifications:Vec<NotificationProps> = notifications_context.clone()()
+        .notifications
+        .into_iter()
+        .filter(|i| i.id != id )
+        .collect();
+
+    notifications_context.set(NotificationProvider {
+        notifications: new_notifications,
+    });
+}
+
 #[component]
 pub fn Notification() -> Element {
-    let notifications = use_context::<Signal<NotificationProvider>>()().notifications;
+    let notifications_context = use_context::<Signal<NotificationProvider>>();
+    let notifications = notifications_context().clone();
+
     return rsx! {
         div {
             class: "w-[20rem] absolute right-8 top-10 max-sm:w-[12rem]",
-            {notifications.iter().map(|item| {
+            {notifications.notifications.iter().map(move |item| {
                 let color_matching=get_color_matching(&item.r#type);
+                let id = item.id.clone();
                 rsx!{
                     div {
-                        id:format!("notification-{}",generate_random_string(10)),
-                        class:"rounded px-3 py-3 m-2 !border-none text-gray-300 dark:text-gray-800 ",
+                        id: id.clone(),
+                        class:"rounded px-3 py-3 m-2 !border-none text-gray-800 dark:text-gray-200 opacity-75 ",
                         style:format!("background-color:{}",color_matching.color),
                         div {
                             div {
                                 class:"flex items-center justify-between",
                                 div {
-                                    onclick:|e|{
-
-                                    },
                                     class:"mr-2 relative top-[0.06rem] hover:text-accent",
                                     {color_matching.icon},
                                 }
@@ -98,6 +120,10 @@ pub fn Notification() -> Element {
                                     {item.title.clone()}
                                 }
                                 div {
+                                    onclick:move |e|{
+                                        e.prevent_default();
+                                        remove_notification(id.clone());
+                                    },
                                     class:"ml-1 flex-shrink-0",
                                     Icon{
                                         icon:BsXLg,
@@ -106,9 +132,15 @@ pub fn Notification() -> Element {
                                     }
                                 }
                             }
-                            div { 
-                                class:"mt-2 h-1 bg-white animate-progress",
-                                style: format!("animation-duration: {}s", item.time),
+                            div {
+                                class:"mt-2 h-1 relative",
+                                div {
+                                    class:"absolute bg-slate-400 w-full h-full",
+                                }
+                                div { 
+                                    class:"absolute w-full h-full ",
+                                    style:"width:80%"
+                                 }
                              }
                         }
                     }
@@ -125,30 +157,35 @@ impl Toast {
     pub fn show(props: NotificationProps) {
         let mut notification_context = use_context::<Signal<NotificationProvider>>();
         let mut new_provider = notification_context().clone();
-        new_provider.notifications.push(props);
+        let mut new_props = props;
+        new_props.id = format!("notification-{}",generate_random_string(10));
+        new_provider.notifications.push(new_props);
         notification_context.set(new_provider);
     }
     pub fn info(title: String, content: String) {
         Self::show(NotificationProps {
+            id: Default::default(),
             title,
             content,
-            time: 5,
+            time: Default::default(),
             r#type: NotificationType::Info,
         });
     }
     pub fn error(title: String, content: String) {
         Self::show(NotificationProps {
+            id: Default::default(),
             title,
             content,
-            time: 5,
+            time: Default::default(),
             r#type: NotificationType::Error,
         });
     }
     pub fn success(title: String, content: String) {
         Self::show(NotificationProps {
+            id: Default::default(),
             title,
             content,
-            time: 5,
+            time: Default::default(),
             r#type: NotificationType::Success,
         });
     }

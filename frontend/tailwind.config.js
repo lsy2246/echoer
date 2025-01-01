@@ -7,17 +7,6 @@ module.exports = {
       colors: {
         accent: 'var(--accent-color)',
       },
-      animation:{
-        progress:"5s progress linear infinite"
-
-      },
-      keyframes:{
-        progress:{
-          '0%':{width:'0%'},
-          '100%':{width:'100%'}
-        }
-
-      }
     },
   },
   plugins: [],

@@ -14,6 +14,7 @@ web-sys = { version = "0.3.76", features = ["Window","Storage","MediaQueryList",
 js-sys = "0.3.76"
 rand = "0.8.5"
 getrandom = { version = "0.2", features = ["js"] }
+tokio = "1.42.0"
 
 [features]
 default = ["dioxus/web"]
