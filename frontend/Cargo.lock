@@ -1477,8 +1477,8 @@ dependencies = [
  "getrandom 0.2.15",
  "js-sys",
  "rand 0.8.5",
- "tokio",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

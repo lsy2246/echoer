@@ -55,8 +55,8 @@ pub fn remove_element_class(ele_name: &str, class_name: &str) -> CustomResult<()
     Ok(get_element(ele_name)?.class_list().remove_1(class_name)?)
 }
 
-pub fn remove_element(ele_name: &str)-> CustomResult<()> {
-    let e=get_element(ele_name)?;
-    let _=e.parent_node().ok_or("无法获取父节点")?.remove_child(&e)?;
+pub fn remove_element(ele_name: &str) -> CustomResult<()> {
+    let e = get_element(ele_name)?;
+    let _ = e.parent_node().ok_or("无法获取父节点")?.remove_child(&e)?;
     Ok(())
 }

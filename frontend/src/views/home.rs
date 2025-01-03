@@ -29,7 +29,7 @@ pub fn Home() -> Element {
                 "success"
             }
 
-            
+
         }
     }
 }

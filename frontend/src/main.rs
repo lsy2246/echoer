@@ -30,11 +30,7 @@ fn main() {
 fn App() -> Element {
     let theme = get_theme();
     use_context_provider(|| Signal::new(ThemeProvider(theme.clone())));
-    use_context_provider(|| {
-        Signal::new(NotificationProvider {
-            notifications: Vec::new(),
-        })
-    });
+    use_context_provider(|| Signal::new(NotificationProvider::default()));
     let mut is_dark_context = use_context::<Signal<ThemeProvider>>();
 
     use_effect(move || {
