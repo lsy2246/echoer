@@ -1,17 +1,16 @@
 use std::format;
 
-use crate::common::error::{CustomErrorInto, CustomResult};
+use crate::common::dom::add_element_class;
 use crate::common::helps::generate_random_string;
 use crate::Route;
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::{BsCheckCircle, BsInfoCircle, BsXCircle, BsXLg};
 use dioxus_free_icons::Icon;
-use wasm_bindgen::prelude::*;
 use web_sys::window;
 
 #[derive(PartialEq, Clone)]
 pub struct NotificationProvider {
-    pub notifications: Vec<NotificationProps>,
+    notifications: Vec<NotificationProps>,
 }
 
 impl Default for NotificationProvider {
@@ -57,6 +56,8 @@ struct NoticationColorMatching {
     border_color: &'static str,
     text_color: &'static str,
     progress_color: &'static str,
+    hover_border_color: &'static str,
+    hover_text_color: &'static str,
 }
 
 fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMatching {
@@ -69,10 +70,12 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
                     height:18,
                 }
             },
-            bg_color: "bg-blue-200",
-            border_color: "border-blue-500",
-            text_color: "text-blue-800",
-            progress_color: "bg-blue-500",
+            bg_color: "bg-blue-50",
+            border_color: "border-blue-200",
+            text_color: "text-blue-600",
+            progress_color: "bg-blue-400",
+            hover_border_color: "hover:border-blue-400",
+            hover_text_color: "hover:text-blue-400",
         },
         NotificationType::Error => NoticationColorMatching {
             icon: rsx! {
@@ -82,10 +85,12 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
                     height:18,
                 }
             },
-            bg_color: "bg-red-200",
-            border_color: "border-red-500",
-            text_color: "text-red-800",
-            progress_color: "bg-red-500",
+            bg_color: "bg-red-50",
+            border_color: "border-red-200",
+            text_color: "text-red-600",
+            progress_color: "bg-red-400",
+            hover_border_color: "hover:border-red-400",
+            hover_text_color: "hover:text-red-400",
         },
         NotificationType::Success => NoticationColorMatching {
             icon: rsx! {
@@ -95,28 +100,22 @@ fn get_color_matching(notification_type: &NotificationType) -> NoticationColorMa
                     height:18,
                 }
             },
-            bg_color: "bg-green-200",
-            border_color: "border-green-500",
-            text_color: "text-green-800",
-            progress_color: "bg-green-500",
+            bg_color: "bg-green-50",
+            border_color: "border-green-200",
+            text_color: "text-green-600",
+            progress_color: "bg-green-400",
+            hover_border_color: "hover:border-green-400",
+            hover_text_color: "hover:text-green-400",
         },
     }
 }
 
 pub fn remove_notification(id: String) {
     let mut notifications_context = use_context::<Signal<NotificationProvider>>();
-    tracing::info!("开始删除通知，ID: {}", id);
-    tracing::info!(
-        "当前通知列表长度: {}",
-        notifications_context().notifications.len()
-    );
     notifications_context.with_mut(|state| {
-        let before_len = state.notifications.len();
         state
             .notifications
             .retain(|notification| notification.id != id);
-        let after_len = state.notifications.len();
-        tracing::info!("删除通知后，列表长度从 {} 变为 {}", before_len, after_len);
     });
 }
 
@@ -124,25 +123,21 @@ pub fn remove_notification(id: String) {
 pub fn NotificationCard(props: NotificationProps) -> Element {
     let color_matching = get_color_matching(&props.r#type);
     let mut progress = use_signal(|| 0);
-    let mut hover = use_signal(|| false);
+    let mut is_hover = use_signal(|| false);
     let id_for_future = props.id.clone();
+
     use_future(move || {
         let id = id_for_future.clone();
         let progress_time = (props.time * 10) as i32;
         async move {
             loop {
-                if progress() >= 100 {
-                    let promise = js_sys::Promise::new(&mut |resolve, _| {
-                        window()
-                            .unwrap()
-                            .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, 150)
-                            .unwrap();
-                    });
-                    wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
-                    remove_notification(id.clone());
-                    break;
+                if is_hover() {
+                    progress.set(0);
+                } else {
+                    progress.set(progress() + 1);
                 }
-                progress.set(progress() + 1);
+                let current_progress = progress();
+
                 let promise = js_sys::Promise::new(&mut |resolve, _| {
                     window()
                         .unwrap()
@@ -153,16 +148,37 @@ pub fn NotificationCard(props: NotificationProps) -> Element {
                         .unwrap();
                 });
                 wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
+
+                if current_progress >= 100 && !is_hover() {
+                    let _ = add_element_class(&format!("#{}", id), "animate-slide-out");
+                    let promise = js_sys::Promise::new(&mut |resolve, _| {
+                        window()
+                            .unwrap()
+                            .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, 300)
+                            .unwrap();
+                    });
+                    wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
+                    remove_notification(id.clone());
+                    break;
+                }
             }
         }
     });
+
     rsx! {
         div {
+            key: "{props.id}",
             id: props.id.clone(),
-            class:format!("rounded px-3 py-3 m-2 border-none text-gray-800 dark:text-gray-200 {} hover:{} border-2 text-base",color_matching.bg_color,color_matching.border_color),
+            class: "rounded px-3 py-3 m-2 border-2 border-transparent text-gray-800 {color_matching.bg_color} text-base animate-slide-in dark:text-gray-200 {color_matching.hover_border_color} transition-all duration-200 ease-in-out hover:scale-[1.02]",
+            onmouseenter:move |_|{
+                is_hover.set(true)
+            },
+            onmouseleave: move |_| {
+                is_hover.set(false)
+            },
             div {
                 div {
-                    class:format!("flex items-center justify-between {}",color_matching.text_color),
+                    class:"flex items-center justify-between {color_matching.text_color}",
                     div {
                         class:"mr-2 relative top-[0.06rem]",
                         {color_matching.icon},
@@ -176,7 +192,7 @@ pub fn NotificationCard(props: NotificationProps) -> Element {
                             e.prevent_default();
                             remove_notification(props.id.clone());
                         },
-                        class:"ml-1 flex-shrink-0",
+                        class:"ml-1 flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200 {color_matching.text_color}",
                         Icon{
                             icon:BsXLg,
                             height:18,
@@ -185,19 +201,17 @@ pub fn NotificationCard(props: NotificationProps) -> Element {
                     }
                 }
                 div {
-                    class:format!("text-sm {}",color_matching.text_color),
+                    class:"text-sm {color_matching.text_color}",
                     {props.content.clone()}
-                 }
+                }
                 div {
-                    class:format!("mt-2 border border-solid rounded-md {}",color_matching.border_color),
+                    class:"mt-2 border border-solid rounded-md {color_matching.border_color}",
                     div {
-                        class:format!("w-full  h-1 transition-all ease-linear  {}",color_matching.progress_color),
-                        style:format!("width:{}%",progress()),
-                     }
-
-                 }
+                        class:"w-full h-1 transition-all ease-linear {color_matching.progress_color}",
+                        style:"width:{progress()}%",
+                    }
+                }
             }
-
         }
     }
 }
@@ -213,11 +227,12 @@ pub fn Notification() -> Element {
             {notifications.notifications.iter().map(move |item| {
                 rsx! {
                     NotificationCard {
+                        key: "{item.id}",
                         ..item.clone()
                     }
                 }
             })}
-         }
+        }
         Outlet::<Route> {}
     };
 }

@@ -16,3 +16,7 @@ html.light{
   background-color:white;
 }
 
+
+html {
+  overflow-x:hidden;
+}
