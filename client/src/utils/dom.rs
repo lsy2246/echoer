@@ -2,7 +2,7 @@ use super::error::{CustomErrorInto, CustomResult};
 use web_sys::{window, Document, Element, Storage, Window};
 
 fn get_window() -> CustomResult<Window> {
-    Ok(window().ok_or("浏览器window对象不存在")?)
+    Ok(window().ok_or("浏览器window对象不存在".into_custom_error())?)
 }
 
 fn get_storage() -> CustomResult<Storage> {
@@ -57,6 +57,6 @@ pub fn remove_element_class(ele_name: &str, class_name: &str) -> CustomResult<()
 
 pub fn remove_element(ele_name: &str) -> CustomResult<()> {
     let e = get_element(ele_name)?;
-    let _ = e.parent_node().ok_or("无法获取父节点")?.remove_child(&e)?;
+    let _ = e.parent_node().ok_or("无法获取父节点".into_custom_error())?.remove_child(&e)?;
     Ok(())
 }

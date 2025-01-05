@@ -1,4 +1,4 @@
-use crate::common::dom::{
+use crate::utils::dom::{
     add_element_class, get_local_storage_value, get_media_theme, remove_element_class,
     remove_local_storage_value, set_local_storage_value,
 };

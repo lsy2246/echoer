@@ -1,0 +1,17 @@
+[package]
+name = "client"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+dioxus = { workspace = true, features = ["web", "router"] }
+dioxus-free-icons = { workspace = true }
+wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+web-sys = { workspace = true }
+js-sys = { workspace = true }
+rand = { workspace = true }
+getrandom = { workspace = true }
+serde = { workspace = true } 

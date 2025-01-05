@@ -1,0 +1,12 @@
+[package]
+name = "server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+rocket = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true } 
+surrealdb = { workspace = true } 

@@ -1,13 +1,7 @@
 use wasm_bindgen::JsValue;
+use common::error::CommonError;
 
-#[derive(Debug)]
-pub struct CustomError(String);
-
-impl std::fmt::Display for CustomError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+pub struct CustomError(pub String);
 
 pub trait CustomErrorInto {
     fn into_custom_error(self) -> CustomError;
@@ -19,9 +13,10 @@ impl CustomErrorInto for &str {
     }
 }
 
-impl From<std::io::Error> for CustomError {
-    fn from(error: std::io::Error) -> Self {
-        CustomError(error.to_string())
+
+impl From<CommonError> for CustomError {
+    fn from(error: CommonError) -> Self {
+        CustomError(error.0)
     }
 }
 
@@ -35,10 +30,5 @@ impl From<JsValue> for CustomError {
     }
 }
 
-impl From<&str> for CustomError {
-    fn from(error: &str) -> Self {
-        CustomError(error.to_string())
-    }
-}
-
 pub type CustomResult<T> = Result<T, CustomError>;
+

@@ -1,14 +1,15 @@
 use dioxus::{logger::tracing, prelude::*};
 use wasm_bindgen::prelude::*;
-mod common;
-use common::dom::{add_element_class, get_media_theme, remove_element_class};
+mod utils;
+mod components;
+mod views;
+use utils::dom::{add_element_class, get_media_theme, remove_element_class};
 use components::notification::{Notification, NotificationProvider};
 use components::theme_toggle::{get_theme, ThemeProvider};
 use components::Navbar;
 use views::Home;
 
-mod components;
-mod views;
+
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 enum Route {

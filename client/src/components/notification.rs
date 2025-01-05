@@ -1,7 +1,7 @@
 use std::format;
 
-use crate::common::dom::add_element_class;
-use crate::common::helps::generate_random_string;
+use crate::utils::dom::add_element_class;
+use common::helps::generate_random_string;
 use crate::Route;
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::{BsCheckCircle, BsInfoCircle, BsXCircle, BsXLg};

@@ -2,75 +2,85 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "backend",
+        "label": "server",
         "type": "shell",
         "command": "cargo run",
         "options": {
-          "cwd": "${workspaceFolder}/backend"
+          "cwd": "${workspaceFolder}/server"
         },
         "problemMatcher": [
-          "$armcc5"
+          "$rustc"
         ]
       },
       {
-        "label": "backend-fmt",
+        "label": "server-fmt",
         "type": "shell",
         "command": "cargo fmt",
         "options": {
-          "cwd": "${workspaceFolder}/backend"
+          "cwd": "${workspaceFolder}/server"
         },
         "problemMatcher": []
       },
       {
-        "label": "frontend-dev",
+        "label": "client-dev",
         "type": "shell",
         "command": "dx serve",
         "options": {
-          "cwd": "${workspaceFolder}/frontend"
+          "cwd": "${workspaceFolder}/client"
         },
         "problemMatcher": []
       },
-	  {
-        "label": "frontend-start",
+      {
+        "label": "client-start",
         "type": "shell",
         "command": "serve .",
         "options": {
-          "cwd": "${workspaceFolder}/frontend/target/dx/frontend/release/web/public"
+          "cwd": "${workspaceFolder}/client/target/dx/client/release/web/public"
         },
         "problemMatcher": []
       },
       {
-        "label": "frontend-build",
+        "label": "client-build",
         "type": "shell",
         "command": "dx build --release",
         "options": {
-          "cwd": "${workspaceFolder}/frontend"
+          "cwd": "${workspaceFolder}/client"
         },
         "problemMatcher": []
       },
       {
-        "label": "frontend-tailwind-build",
+        "label": "client-tailwind-build",
         "type": "shell",
         "command": "npx tailwindcss -i ./tailwind.css -o ./assets/styling/tailwind.css",
         "options": {
-          "cwd": "${workspaceFolder}/frontend"
+          "cwd": "${workspaceFolder}/client"
         },
         "problemMatcher": []
       },
       {
-        "label": "frontend-fmt",
+        "label": "client-fmt",
         "type": "shell",
         "command": "cargo fmt",
         "options": {
-          "cwd": "${workspaceFolder}/frontend"
+          "cwd": "${workspaceFolder}/client"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "common-fmt",
+        "type": "shell",
+        "command": "cargo fmt",
+        "options": {
+          "cwd": "${workspaceFolder}/common"
         },
         "problemMatcher": []
       },
       {
         "label": "format-all",
         "dependsOn": [
-          "backend-fmt",
-          "frontend-fmt"
+          "server-fmt",
+          "client-fmt",
+          "common-fmt"
         ],
         "dependsOrder": "parallel",
         "problemMatcher": []
@@ -78,8 +88,8 @@
       {
         "label": "run-all",
         "dependsOn": [
-          "backend",
-          "frontend-dev"
+          "server",
+          "client-dev"
         ],
         "dependsOrder": "parallel",
         "group": {
