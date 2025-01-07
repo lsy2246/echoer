@@ -1,9 +1,12 @@
+mod db;
 mod utils;
-use rocket::{get, routes};
-use surrealdb;
+
+use db::Database;
+use rocket::{get, routes, State};
+use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
+
 use utils::error::CustomResult;
-
-
 
 #[get("/")]
 fn index() -> &'static str {
@@ -15,17 +18,21 @@ fn get_theme() -> &'static str {
     "light"
 }
 
-struct Appstate{
-    
+pub struct AppState {
+    db: Database,
 }
 
 #[rocket::main]
 async fn main() -> CustomResult<()> {
     let rocket_build = rocket::build();
 
+    let db = Database::new().await?;
+
     let rocket = rocket_build
         .mount("/", routes![index, get_theme])
-        .ignite().await?;
+        .manage(AppState { db })
+        .ignite()
+        .await?;
     rocket.launch().await?;
     std::process::exit(0);
-} 
+}

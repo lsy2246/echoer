@@ -1,5 +1,6 @@
 use common::error::CommonError;
 use rocket;
+use surrealdb;
 
 #[derive(Debug)]
 pub struct CustomError(pub String);
@@ -26,5 +27,10 @@ impl From<rocket::Error> for CustomError {
     }
 }
 
-pub type CustomResult<T> = Result<T, CustomError>;
+impl From<surrealdb::Error> for CustomError {
+    fn from(error: surrealdb::Error) -> Self {
+        CustomError(error.to_string())
+    }
+}
 
+pub type CustomResult<T> = Result<T, CustomError>;

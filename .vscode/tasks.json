@@ -67,15 +67,6 @@
         "problemMatcher": []
       },
       {
-        "label": "common-fmt",
-        "type": "shell",
-        "command": "cargo fmt",
-        "options": {
-          "cwd": "${workspaceFolder}/common"
-        },
-        "problemMatcher": []
-      },
-      {
         "label": "format-all",
         "dependsOn": [
           "server-fmt",
