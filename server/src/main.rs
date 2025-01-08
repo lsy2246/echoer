@@ -26,7 +26,7 @@ pub struct AppState {
 async fn main() -> CustomResult<()> {
     let rocket_build = rocket::build();
 
-    let db = Database::new().await?;
+    let db = Database::link().await?;
 
     let rocket = rocket_build
         .mount("/", routes![index, get_theme])

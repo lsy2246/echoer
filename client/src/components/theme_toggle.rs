@@ -16,8 +16,8 @@ pub struct ToggleProps {
     pub height: u32,
     #[props(default = 20)]
     pub width: u32,
-    #[props(default = "currentColor".to_string())]
-    pub fill: String,
+    #[props(default = "currentColor")]
+    pub fill: &'static str,
 }
 
 #[component]
@@ -26,6 +26,8 @@ pub fn Toggle(props: ToggleProps) -> Element {
 
     rsx! {
         div {
+            style: "height: {props.height}px;width: {props.width}px;",
+            class:"inline-flex items-center justify-center",
             onclick: move |_|
             {
                 let system_theme=get_media_theme().unwrap_or_else(|_|"".to_string());
@@ -53,8 +55,8 @@ pub fn Toggle(props: ToggleProps) -> Element {
                 "dark"=>{
                     rsx!(
                         Icon{
-                            width:props.width,
-                            height:props.height,
+                            height:props.height/3*2,
+                            width:props.width/3*2,
                             fill:props.fill,
                             icon:BsMoonStars,
                         }
@@ -63,8 +65,8 @@ pub fn Toggle(props: ToggleProps) -> Element {
                 _=>{
                     rsx!{
                         Icon{
-                            width:props.width,
-                            height:props.height,
+                            height:props.height/3*2,
+                            width:props.width/3*2,
                             fill:props.fill,
                             icon:BsSun,
                         }

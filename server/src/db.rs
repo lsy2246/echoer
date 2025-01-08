@@ -7,7 +7,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn new() -> CustomResult<Self> {
+    pub async fn link() -> CustomResult<Self> {
         let client = connect("ws://172.30.113.67:5000").await?;
 
         // 使用root账户进行认证
@@ -19,12 +19,12 @@ impl Database {
             .await?;
 
         // 选择命名空间和数据库
-        client.use_ns("test").use_db("test").await?;
+        client.use_ns("echoer").await?;
 
         Ok(Self { client })
     }
 
-    pub fn get_client(&self) -> &Surreal<Any> {
+    pub fn get_client(&self) -> &Surreal<Any> { 
         &self.client
     }
 }
