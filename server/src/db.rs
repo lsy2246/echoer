@@ -1,4 +1,8 @@
-use surrealdb::{engine::any::{connect,Any}, Surreal,opt::auth::Root};
+use surrealdb::{
+    engine::any::{connect, Any},
+    opt::auth::Root,
+    Surreal,
+};
 
 use crate::utils::error::CustomResult;
 
@@ -24,7 +28,7 @@ impl Database {
         Ok(Self { client })
     }
 
-    pub fn get_client(&self) -> &Surreal<Any> { 
+    pub fn get_client(&self) -> &Surreal<Any> {
         &self.client
     }
 }

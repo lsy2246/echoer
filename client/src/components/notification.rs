@@ -1,11 +1,10 @@
-use std::format;
-
 use crate::utils::dom::add_element_class;
-use common::helps::generate_random_string;
 use crate::Route;
+use common::helps::generate_random_string;
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::{BsCheckCircle, BsInfoCircle, BsXCircle, BsXLg};
 use dioxus_free_icons::Icon;
+use std::format;
 use web_sys::window;
 
 #[derive(PartialEq, Clone)]

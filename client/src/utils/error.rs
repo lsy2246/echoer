@@ -1,6 +1,8 @@
-use wasm_bindgen::JsValue;
 use common::error::CommonError;
+use dioxus::prelude::RenderError;
+use wasm_bindgen::JsValue;
 
+#[derive(Debug)]
 pub struct CustomError(pub String);
 
 pub trait CustomErrorInto {
@@ -12,7 +14,6 @@ impl CustomErrorInto for &str {
         CustomError(self.to_string())
     }
 }
-
 
 impl From<CommonError> for CustomError {
     fn from(error: CommonError) -> Self {
@@ -30,5 +31,10 @@ impl From<JsValue> for CustomError {
     }
 }
 
-pub type CustomResult<T> = Result<T, CustomError>;
+impl From<RenderError> for CustomError {
+    fn from(error: RenderError) -> Self {
+        CustomError(error.to_string())
+    }
+}
 
+pub type CustomResult<T> = Result<T, CustomError>;

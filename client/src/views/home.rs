@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 pub fn Home() -> Element {
     rsx! {
         div {
-            class:"border-2 border-red-500",
+            class:"border-2 border-red-500 h-[999px]",
             "hello,world"
             ul {
                 li { "nihao" }

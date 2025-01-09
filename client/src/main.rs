@@ -1,15 +1,14 @@
 use dioxus::{logger::tracing, prelude::*};
-use wasm_bindgen::prelude::*;
-mod utils;
+use wasm_bindgen::{prelude::Closure, JsCast};
 mod components;
+mod utils;
 mod views;
-use utils::dom::{add_element_class, get_media_theme, remove_element_class};
+use crate::utils::error::CustomResult;
 use components::notification::{Notification, NotificationProvider};
 use components::theme_toggle::{get_theme, ThemeProvider};
 use components::Navbar;
+use utils::dom::{get_media_theme, set_element_dataset};
 use views::Home;
-
-
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 enum Route {
@@ -35,7 +34,7 @@ fn App() -> Element {
     let mut is_dark_context = use_context::<Signal<ThemeProvider>>();
 
     use_effect(move || {
-        let _ = add_element_class("html", &theme);
+        let _ = set_element_dataset("html", "theme", &theme);
         let window = web_sys::window().unwrap();
         let media_query = window
             .match_media("(prefers-color-scheme: dark)")
@@ -43,8 +42,7 @@ fn App() -> Element {
             .unwrap();
         let closure = Closure::wrap(Box::new(move |_: web_sys::MediaQueryListEvent| {
             let theme = get_media_theme().unwrap_or_else(|_| "light".to_string());
-            let _ = remove_element_class("html", &is_dark_context().0);
-            let _ = add_element_class("html", &theme);
+            let _ = set_element_dataset("html", "theme", &theme);
             is_dark_context.set(ThemeProvider(theme));
         }) as Box<dyn FnMut(_)>);
         media_query

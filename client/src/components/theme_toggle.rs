@@ -1,6 +1,6 @@
 use crate::utils::dom::{
-    add_element_class, get_local_storage_value, get_media_theme, remove_element_class,
-    remove_local_storage_value, set_local_storage_value,
+    get_local_storage_value, get_media_theme, remove_local_storage_value, set_element_dataset,
+    set_local_storage_value,
 };
 use dioxus::{logger::tracing, prelude::*};
 use dioxus_free_icons::icons::bs_icons::BsMoonStars;
@@ -39,9 +39,8 @@ pub fn Toggle(props: ToggleProps) -> Element {
                     target_theme="light".to_string()
                 };
 
-                let _=remove_element_class("html", &theme_context().0);
                 theme_context.set(ThemeProvider(target_theme.clone()));
-                let _=add_element_class("html", &target_theme);
+                let _=set_element_dataset("html","theme", &target_theme);
                 if target_theme==system_theme {
                     let _=remove_local_storage_value("theme");
                 }else{

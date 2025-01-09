@@ -10,13 +10,13 @@ fn get_storage() -> CustomResult<Storage> {
         .local_storage()?
         .ok_or("获取浏览器Storge对象失败".into_custom_error())
 }
-fn get_document() -> CustomResult<Document> {
+pub fn get_document() -> CustomResult<Document> {
     get_window()?
         .document()
         .ok_or("获取浏览器Document对象失败".into_custom_error())
 }
 
-fn get_element(ele_name: &str) -> CustomResult<Element> {
+pub fn get_element(ele_name: &str) -> CustomResult<Element> {
     get_document()?
         .query_selector(ele_name)?
         .ok_or(format!("获取元素{}失败", ele_name).into_custom_error())
@@ -57,6 +57,22 @@ pub fn remove_element_class(ele_name: &str, class_name: &str) -> CustomResult<()
 
 pub fn remove_element(ele_name: &str) -> CustomResult<()> {
     let e = get_element(ele_name)?;
-    let _ = e.parent_node().ok_or("无法获取父节点".into_custom_error())?.remove_child(&e)?;
+    let _ = e
+        .parent_node()
+        .ok_or("无法获取父节点".into_custom_error())?
+        .remove_child(&e)?;
     Ok(())
+}
+
+pub fn set_element_dataset(
+    ele_name: &str,
+    attribute_name: &str,
+    attribute_value: &str,
+) -> CustomResult<()> {
+    Ok(get_element(ele_name)?
+        .set_attribute(&format!("data-{}", attribute_name), attribute_value)?)
+}
+
+pub fn remove_element_dataset(ele_name: &str, attribute_name: &str) -> CustomResult<()> {
+    Ok(get_element(ele_name)?.remove_attribute(attribute_name)?)
 }
