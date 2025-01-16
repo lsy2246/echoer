@@ -222,7 +222,7 @@ pub fn Notification() -> Element {
 
     return rsx! {
         div {
-            class: "w-[20rem] absolute right-8 top-5 max-sm:w-[12rem] ",
+            class: "w-[20rem] absolute right-8 max-sm:w-[12rem]",
             {notifications.notifications.iter().map(move |item| {
                 rsx! {
                     NotificationCard {

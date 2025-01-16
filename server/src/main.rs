@@ -2,9 +2,8 @@ mod db;
 mod utils;
 
 use db::Database;
-use rocket::{get, routes, State};
-use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
+use rocket::{get, http::Method, routes};
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 
 use utils::error::CustomResult;
 
@@ -13,13 +12,27 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[get("/api/theme")]
-fn get_theme() -> &'static str {
-    "light"
-}
-
 pub struct AppState {
     db: Database,
+}
+
+fn cors() -> Cors {
+    CorsOptions {
+        allowed_origins: AllowedOrigins::all(),
+        allowed_methods: vec![Method::Get, Method::Post, Method::Options]
+            .into_iter()
+            .map(From::from)
+            .collect(),
+        allowed_headers: AllowedHeaders::all(),
+        allow_credentials: true,
+        expose_headers: Default::default(),
+        max_age: None,
+        send_wildcard: false,
+        fairing_route_base: "/".to_string(),
+        fairing_route_rank: 0,
+    }
+    .to_cors()
+    .expect("CORS配置错误")
 }
 
 #[rocket::main]
@@ -29,8 +42,9 @@ async fn main() -> CustomResult<()> {
     let db = Database::link().await?;
 
     let rocket = rocket_build
-        .mount("/", routes![index, get_theme])
+        .mount("/", routes![index])
         .manage(AppState { db })
+        .attach(cors())
         .ignite()
         .await?;
     rocket.launch().await?;

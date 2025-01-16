@@ -35,7 +35,7 @@
         "type": "shell",
         "command": "serve .",
         "options": {
-          "cwd": "${workspaceFolder}/client/target/dx/client/release/web/public"
+          "cwd": "${workspaceFolder}/target/dx/client/release/web/public"
         },
         "problemMatcher": []
       },
